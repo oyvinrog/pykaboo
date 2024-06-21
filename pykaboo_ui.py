@@ -1,4 +1,5 @@
 """
+see README.md for more info
 
 Please run pykaboo.reg to create the registry entries for the context menu in
 Windows
