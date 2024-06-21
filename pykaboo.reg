@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\*\shell\Hide]
+@="Hide with Pykaboo"
+
+[HKEY_CLASSES_ROOT\*\shell\Hide\command]
+@="\"C:\\Windows\\System32\\cmd.exe\" /c python \"C:\\scripts\\steganodrive\\pykaboo_ui.py\" \"%1\""
