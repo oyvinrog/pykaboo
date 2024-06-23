@@ -141,6 +141,17 @@ def test():
     # Unhide the data to a specific folder
     output_folder = unhide(stego_image, "extracted_files", "password")
     print(f"Data extracted to folder {output_folder}")
+    input("Press Enter to continue...")
+
+    # Remove files
+    os.remove("test_file.txt")
+    os.remove("another_file.txt")
+    os.remove("red_image.png")
+    os.remove("blue_image.png")
+    os.remove("stego_red_image.png")
+    os.remove("extracted_files/test_file.txt")
+    os.remove("extracted_files/another_file.txt")
+    os.remove("extracted_files/blue_image.png")
 
 if __name__ == "__main__":
 
