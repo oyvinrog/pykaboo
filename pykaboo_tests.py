@@ -1,5 +1,3 @@
-#STOPPET HER!! FÅ NEDENFOR TIL Å FUNGERE!!!!!! VIL BLI DRITBRA!! NESTE ER
-# AES-KRYPTERING!!!!
 
 # Reproduce known issue
 from pykaboo import hide
