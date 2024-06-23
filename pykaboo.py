@@ -1,19 +1,11 @@
 from PIL import Image
 import numpy as np
-import logging
 import os
 import png
 from cryptography.exceptions import InvalidSignature  # Import the InvalidSignature exception
+import logging
 
 from encryption import encrypt, decrypt
-
-# Configure logging to file and console with full trace
-logging.basicConfig(filename='pykaboo.log', filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-console_handler = logging.StreamHandler()  # Create console handler
-console_handler.setLevel(logging.DEBUG)  # Set level to DEBUG for full trace
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')  # Define the same formatter
-console_handler.setFormatter(formatter)  # Set formatter to console handler
-logging.getLogger().addHandler(console_handler)  # Add console handler to the root logger
 
 def hide(img, source_files, password):
     logging.info(f"Hiding data in {img} with {source_files}")

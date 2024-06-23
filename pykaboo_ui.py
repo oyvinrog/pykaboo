@@ -17,8 +17,14 @@ from tkinter.simpledialog import askstring
 from pykaboo import hide, unhide
 import logging
 
-# Configure logging
-logging.basicConfig(filename='pykaboo.log', filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Set to True to log to file, False to log to console
+LOG_TO_FILE = False 
+
+# Configure logging based on LOG_TO_FILE
+if LOG_TO_FILE:
+    logging.basicConfig(filename='pykaboo.log', filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+else:
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler()])
 
 def select_files():
     root = Tk()
@@ -60,6 +66,15 @@ def main():
             result = hide(image_path, file_paths, password)
             logging.info(f"Data hidden in {result}")
             print(f"Data hidden in {result}")
+            
+            # Remove files after hiding successfully
+            for file_path in file_paths:
+                try:
+                    os.remove(file_path)
+                    logging.info(f"Removed file {file_path}")
+                except Exception as e:
+                    logging.error(f"Failed to remove file {file_path}: {e}")
+                    print(f"Failed to remove file {file_path}: {e}")
         except Exception as e:
             logging.error(f"An error occurred: {e} on line {e.__traceback__.tb_lineno}")
             print(f"An error occurred: {e}")
