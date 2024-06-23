@@ -16,36 +16,36 @@ from tkinter import Tk, filedialog
 from pykaboo import hide, unhide
 import logging
 
-# Configure logging to file
+# Configure logging
 logging.basicConfig(filename='pykaboo.log', filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def select_image():
+def select_files():
     root = Tk()
     root.withdraw()  # Hide the main window
-    image_path = filedialog.askopenfilename(title="Select an image file", 
-                                            filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp")])
-    return image_path
+    file_paths = filedialog.askopenfilenames(title="Select files to hide", 
+                                             filetypes=[("All files", "*.*")])
+    return file_paths
 
 def main():
     logging.info("Starting Pykaboo")
     logging.info(f"Arguments: {sys.argv}")
     if len(sys.argv) != 3:
         logging.error("Incorrect usage. Expected two arguments.")
-        print("Usage: python pykaboo_ui.py <hide/unhide> <file>")
+        print("Usage: python pykaboo_ui.py <hide/unhide> <image_file>")
         sys.exit(1)
 
     operation = sys.argv[1]
-    file_path = sys.argv[2]
+    image_path = sys.argv[2]
 
     if operation == "hide":
-        img_path = select_image()
-        if not img_path:
-            logging.warning("No image selected. Exiting.")
-            print("No image selected. Exiting.")
+        file_paths = select_files()
+        if not file_paths:
+            logging.warning("No files selected. Exiting.")
+            print("No files selected. Exiting.")
             sys.exit(1)
         try:
-            logging.info(f"Hiding data in {img_path} with {file_path}")
-            result = hide(img_path, file_path)
+            logging.info(f"Hiding files {file_paths} in {image_path}")
+            result = hide(image_path, file_paths)
             logging.info(f"Data hidden in {result}")
             print(f"Data hidden in {result}")
         except Exception as e:
@@ -53,8 +53,8 @@ def main():
             print(f"An error occurred: {e}")
     elif operation == "unhide":
         try:
-            logging.info(f"Unhiding data from {file_path}")
-            result = unhide(file_path, "unhidden_file.txt")
+            logging.info(f"Unhiding data from {image_path}")
+            result = unhide(image_path, "unhidden_files")
             logging.info(f"Data retrieved from {result}")
             print(f"Data retrieved from {result}")
         except Exception as e:
