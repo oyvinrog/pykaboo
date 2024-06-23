@@ -1,13 +1,13 @@
 Windows Registry Editor Version 5.00
 
-[HKEY_CLASSES_ROOT\*\shell\Hide]
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.png\shell\Hide]
 @="Hide files in this image with Pykaboo"
 
-[HKEY_CLASSES_ROOT\*\shell\Hide\command]
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.png\shell\Hide\command]
 @="\"C:\\Windows\\System32\\cmd.exe\" /c python \"C:\\scripts\\steganodrive\\pykaboo_ui.py\" hide \"%1\""
 
-[HKEY_CLASSES_ROOT\*\shell\Unhide]
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.png\shell\Unhide]
 @="Unhide files from this image with Pykaboo"
 
-[HKEY_CLASSES_ROOT\*\shell\Unhide\command]
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.png\shell\Unhide\command]
 @="\"C:\\Windows\\System32\\cmd.exe\" /c python \"C:\\scripts\\steganodrive\\pykaboo_ui.py\" unhide \"%1\""
