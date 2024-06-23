@@ -13,6 +13,7 @@ TODO:
 import sys
 import os
 from tkinter import Tk, filedialog
+from tkinter.simpledialog import askstring
 from pykaboo import hide, unhide
 import logging
 
@@ -26,6 +27,12 @@ def select_files():
                                              filetypes=[("All files", "*.*")])
     return file_paths
 
+def get_password():
+    root = Tk()
+    root.withdraw()  # Hide the main window
+    password = askstring("Password", "Enter password:", show='*')
+    return password
+
 def main():
     logging.info("Starting Pykaboo")
     logging.info(f"Arguments: {sys.argv}")
@@ -36,6 +43,11 @@ def main():
 
     operation = sys.argv[1]
     image_path = sys.argv[2]
+    password = get_password()
+    if not password:
+        logging.warning("No password provided. Exiting.")
+        print("No password provided. Exiting.")
+        sys.exit(1)
 
     if operation == "hide":
         file_paths = select_files()
@@ -45,7 +57,7 @@ def main():
             sys.exit(1)
         try:
             logging.info(f"Hiding files {file_paths} in {image_path}")
-            result = hide(image_path, file_paths)
+            result = hide(image_path, file_paths, password)
             logging.info(f"Data hidden in {result}")
             print(f"Data hidden in {result}")
         except Exception as e:
@@ -54,7 +66,7 @@ def main():
     elif operation == "unhide":
         try:
             logging.info(f"Unhiding data from {image_path}")
-            result = unhide(image_path, "unhidden_files")
+            result = unhide(image_path, "unhidden_files", password)
             logging.info(f"Data retrieved from {result}")
             print(f"Data retrieved from {result}")
         except Exception as e:

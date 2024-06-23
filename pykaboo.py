@@ -3,6 +3,9 @@ import numpy as np
 import logging
 import os
 import png
+from cryptography.exceptions import InvalidSignature  # Import the InvalidSignature exception
+
+from encryption import encrypt, decrypt
 
 # Configure logging to file and console with full trace
 logging.basicConfig(filename='pykaboo.log', filemode='a', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,7 +15,7 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')  # De
 console_handler.setFormatter(formatter)  # Set formatter to console handler
 logging.getLogger().addHandler(console_handler)  # Add console handler to the root logger
 
-def hide(img, source_files):
+def hide(img, source_files, password):
     logging.info(f"Hiding data in {img} with {source_files}")
     reader = png.Reader(filename=img)
     w, h, pixels, metadata = reader.read_flat()
@@ -27,14 +30,17 @@ def hide(img, source_files):
         with open(file, 'rb') as f:
             file_data = f.read()
             metadata_content += f"{os.path.basename(file)}:{len(file_data)};"
-            all_data.extend(file_data)
+            all_data.extend(file_data)  # Changed to store plain file data first
 
-    metadata_content += "end"
+    metadata_content += "end;"
     metadata_bytes = metadata_content.encode()
     data_bytes = metadata_bytes + all_data
 
+    encrypted_data_bytes = encrypt(password, data_bytes)  # Encrypt the entire data
+    encrypted_data_bytes += b'end;'  # Append 'end;' after encryption
+
     custom_chunk_type = b"tEXt"
-    custom_chunk_data = b"hidden_data\x00" + data_bytes
+    custom_chunk_data = b"hidden_data\x00" + encrypted_data_bytes
     output_filename = f"stego_{os.path.basename(img)}"
 
     with open(output_filename, 'wb') as output_file:
@@ -50,8 +56,7 @@ def hide(img, source_files):
     logging.info(f"Data hidden successfully in {output_filename}")
     return output_filename
 
-# STOPPET HER!!! FÅ DEN TIL Å FUNGERE ORDENTLIG!!
-def unhide(img, output_folder):
+def unhide(img, output_folder, password):
     logging.info(f"Starting to unhide data from {img}")
     
     with open(img, 'rb') as f:
@@ -63,35 +68,45 @@ def unhide(img, output_folder):
     
     index = content.find(search_marker)
     while index != -1:
-        start_index = index + len(search_marker)
-        if content[start_index:start_index + len(hidden_data_marker)] == hidden_data_marker:
-            data_chunk = content[start_index + len(hidden_data_marker):]
-            logging.info("Hidden data chunk found")
-            break
+        start_index = content.find(hidden_data_marker, index) + len(hidden_data_marker)
+        end_index = content.find(b'end;', start_index)
+        if end_index == -1:
+            logging.error("End of encrypted data not found")
+            raise ValueError("End of encrypted data not found")
+        
+        encrypted_data_chunk = content[start_index:end_index]
+        try:
+            decrypted_data_chunk = decrypt(password, encrypted_data_chunk)  # Decrypt the data
+        except InvalidSignature as e:
+            logging.error("Decryption failed: Invalid signature")
+            raise ValueError("Decryption failed: Invalid signature") from e
+        
+        logging.info("Hidden data chunk found")
+        break
         index = content.find(search_marker, index + 1)
     else:
         logging.error("No hidden data found")
         raise ValueError("No hidden data found")
     
-    metadata_end = data_chunk.find(b'end')
+    metadata_end = decrypted_data_chunk.find(b'end;')
     if metadata_end == -1:
         logging.error("End of metadata not found")
         raise ValueError("End of metadata not found")
     
-    metadata_content = data_chunk[:metadata_end].decode()
+    metadata_content = decrypted_data_chunk[:metadata_end].decode()
     logging.info(f"Metadata content: {metadata_content}")
     
     files_info = [info.split(':') for info in metadata_content.split(';') if info and info != 'end']
     logging.info(f"Files info: {files_info}")
     
-    offset = metadata_end + len(b'end')
+    offset = metadata_end + len(b'end;')  # Correct offset for decrypted data
     
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
     for filename, size in files_info:
         size = int(size)
-        file_data = data_chunk[offset:offset + size]
+        file_data = decrypted_data_chunk[offset:offset + size]
         offset += size
         
         logging.info(f"Extracting {filename} of size {size} bytes")
@@ -128,11 +143,11 @@ def test():
     create_blue_image()
 
     # Hide the data from multiple files
-    stego_image = hide("red_image.png", ["test_file.txt", "another_file.txt", "blue_image.png"])
+    stego_image = hide("red_image.png", ["test_file.txt", "another_file.txt", "blue_image.png"], "password")
     print(f"Data hidden in {stego_image}")
 
     # Unhide the data to a specific folder
-    output_folder = unhide(stego_image, "extracted_files")
+    output_folder = unhide(stego_image, "extracted_files", "password")
     print(f"Data extracted to folder {output_folder}")
 
 if __name__ == "__main__":
