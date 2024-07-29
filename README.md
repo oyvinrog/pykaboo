@@ -6,7 +6,7 @@ Simply hold shift and right click the image file you
 want to use for storage, and select "Hide with Pykaboo". Then just select all of the
 files you want to hide.
 
-![alt text](images\image.png)
+![alt text](images/image.png)
 
 The hide function in the provided script uses a technique to hide
 data in the PNG metadata. Rather than embedding the data in the pixel values
